@@ -5,17 +5,16 @@ const path = require('path');
 const com = require('commander');
 const chalk = require('chalk');
 
-const inputFile = path.join(__dirname, 'src', 'input.txt');
-const outputFile = path.join(__dirname, 'src', 'output.txt');
+com.option('-w, --write').option('-s, --shift').option('-i, --input').option('-o, --output').action(() => {
+    const inputFile = path.join(__dirname, process.argv[7]);
+    const outputFile = path.join(__dirname, process.argv[9]);
 
-com.option('-w, --write').option('-s, --shift').action(() => {
-    process.stdin.on('data', function(data) {
-        let inputData = data.toString();
-        fs.appendFile(inputFile, data, err => {
-            if (err) {
-                console.log(chalk.red("Can't insert data to input.txt"));
-            }
-        })
+    fs.readFile(inputFile, 'utf-8', (err, content) => {
+        if (err) {
+            console.log(chalk.red("Can't read the input file"));
+        }
+        let inputData = content.toString();
+        
         let num;
         if (typeof(+process.argv[5]) === 'number' && (+process.argv[5]) >= 0) {
             num = process.argv[5];
@@ -24,16 +23,15 @@ com.option('-w, --write').option('-s, --shift').action(() => {
         }
 
         if (process.argv[3] === 'encode') {
-            encoding(inputData, num);
+            encoding(inputData, num, outputFile);
         } else if (process.argv[3] === 'decode') {
-            decoding(inputData, num);
+            decoding(inputData, num, outputFile);
         } else {
               process.exit();
         }
      })
      process.on('exit', function(){
-        console.log(chalk.red('error, you can use only encode or decode in --write option'));
-        console.log(chalk.red('or positive number in --shift option'));
+        console.log(chalk.green('The process was successfully'));
      })
 })
 
@@ -106,7 +104,7 @@ function dataDecoded(data, shift) {
     return strOutputDe;
 }
 
-function encoding(data, shift) {
+function encoding(data, shift, outputFile) {
     let strOutputEn = dataEncoded(data, shift);
         fs.appendFile(outputFile, strOutputEn, err => {
             if (err) {
@@ -116,7 +114,7 @@ function encoding(data, shift) {
         })
     }
 
-function decoding(data, shift) {
+function decoding(data, shift, outputFile) {
         let strOutputDe = dataDecoded(data, shift);
         fs.appendFile(outputFile, strOutputDe, err => {
             if (err) {
