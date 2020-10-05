@@ -1,7 +1,8 @@
+'use strict'
+
 const fs = require('fs');
 const path = require('path');
 const com = require('commander'),
-{prompt} = require('inquirer'),
 chalk = require('chalk');
 
 const inputFile = path.join(__dirname, 'src', 'input.txt');
@@ -15,15 +16,25 @@ com.option('-w, --write').option('-s, --shift').action(() => {
                 console.log(chalk.red("Can't insert data to input.txt"));
             }
         })
+        let num;
+        if (typeof(process.argv[5]) === Number && process.argv[5] >= 0) {
+            num = process.argv[5];
+        } else {
+            process.exit();
+        }
 
         if (process.argv[3] === 'encode') {
-            encoding(inputData, process.argv[5]);
+            encoding(inputData, num);
         } else if (process.argv[3] === 'decode') {
-            decoding(inputData, process.argv[5]);
+            decoding(inputData, num);
+        } else {
+            process.exit();
         }
- 
-    })
-
+     })
+     process.on('exit', function() {
+        console.log(chalk.red('error, you can use only encode or decode in --write option'));
+        console.log(chalk.red('or positive number in --shift option'));
+     })
 })
 
 com.parse(process.argv);
@@ -113,5 +124,4 @@ function decoding(data, shift) {
             }
             console.log(chalk.blue(strOutputDe));
         })
-
     }
