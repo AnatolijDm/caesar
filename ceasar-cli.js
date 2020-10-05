@@ -7,18 +7,9 @@ chalk = require('chalk');
 const inputFile = path.join(__dirname, 'src', 'input.txt');
 const outputFile = path.join(__dirname, 'src', 'output.txt');
 
-let inputData;
-
-com.option('-w, --write').option('-s, --shift').alias('-w').action(() => {
+com.option('-w, --write').option('-s, --shift').action(() => {
     process.stdin.on('data', function(data) {
-        inputData = data.toString();
-
-        if(process.argv[1] !== '--write' || process.argv[1] !== '-w') {
-            process.stderr(console.error(error));
-        } else if(process.argv[3] !== '--shift' || process.argv[1] !== '-s') {
-            process.stderr(console.error(error));
-        }
-
+        let inputData = data.toString();
         fs.appendFile(inputFile, data, err => {
             if (err) {
                 console.log(chalk.red("Can't insert data to input.txt"));
@@ -26,9 +17,9 @@ com.option('-w, --write').option('-s, --shift').alias('-w').action(() => {
         })
 
         if (process.argv[3] === 'encode') {
-            encoding(process.argv[5]);
+            encoding(inputData, process.argv[5]);
         } else if (process.argv[3] === 'decode') {
-            decoding(process.argv[5]);
+            decoding(inputData, process.argv[5]);
         }
  
     })
@@ -37,10 +28,8 @@ com.option('-w, --write').option('-s, --shift').alias('-w').action(() => {
 
 com.parse(process.argv);
 
-let strOutputEn = '\n';
-let strOutputDe = '\n';
-
 function dataEncoded(data, shift) {
+    let strOutputEn = '';
     data.toString().split('');
     let arr = [];
     for (let i = 0; i < data.length; i++) {
@@ -48,41 +37,81 @@ function dataEncoded(data, shift) {
        arr.push(result);
     }
     for (let i = 0; i < arr.length; i++) {
-        strOutputEn = strOutputEn + String.fromCharCode(+arr[i] + +shift);
+        if (arr[i] > 64 && arr[i] < 91) {
+            strOutputEncodeUpper(i);
+        } else if (arr[i] > 96 && arr[i] < 123) {
+            strOutputEncodeLower(i);
+        } else {
+            strOutputEn = strOutputEn + String.fromCharCode(+arr[i]);
+        }
     }
+        function strOutputEncodeUpper(i) {
+            if ((arr[i] + +shift) > 90) {
+                strOutputEn = strOutputEn + String.fromCharCode(+arr[i] - 26 + +shift);
+            } else if ((arr[i] + +shift) > 64 && (arr[i] + +shift) < 91) {
+                strOutputEn = strOutputEn + String.fromCharCode(+arr[i] + +shift);
+            }
+        }
+        function strOutputEncodeLower(i) {
+            if ((arr[i] + +shift) > 122) {
+                strOutputEn = strOutputEn + String.fromCharCode(+arr[i] - 26 + +shift);
+            }else if ((arr[i] + +shift) > 96 && (arr[i] + +shift) < 123) {
+                strOutputEn = strOutputEn + String.fromCharCode(+arr[i] + +shift);
+            }
+        }
     return strOutputEn;
 }
 
 function dataDecoded(data, shift) {
+    let strOutputDe = '';
     data.toString().split('');
     let arr = [];
     for (let i = 0; i < data.length; i++) {
-       let result = data[i].charCodeAt(0)
-       arr.push(result);
+        let result = data[i].charCodeAt(0)
+        arr.push(result);
     }
     for (let i = 0; i < arr.length; i++) {
-        strOutputDe = strOutputDe + String.fromCharCode(+arr[i] - +shift);
+        if (arr[i] > 64 && arr[i] < 91) {
+            strOutputDecodeUpper(i);
+        } else  if (arr[i] > 96 && arr[i] < 123) {
+            strOutputDecodeLower(i);
+        } else 
+        strOutputDe = strOutputDe + String.fromCharCode(+arr[i]);
+    }
+    function strOutputDecodeUpper(i) {
+        if ((arr[i] - +shift) < 65) {
+            strOutputDe = strOutputDe + String.fromCharCode(+arr[i] + 26 - +shift);
+        } else if ((arr[i] - +shift) > 64 && (arr[i] - +shift) < 91) {
+            strOutputDe = strOutputDe + String.fromCharCode(+arr[i] - +shift);
+        }
+    }
+    function strOutputDecodeLower(i) {
+        if ((arr[i] - +shift) < 97) {
+            strOutputDe = strOutputDe + String.fromCharCode(+arr[i] + 26 - +shift);
+        } if ((arr[i] - +shift) > 96 && (arr[i] - +shift) < 123) {
+            strOutputDe = strOutputDe + String.fromCharCode(+arr[i] - +shift);
+        }
     }
     return strOutputDe;
 }
 
-function encoding(shift) {
-        dataEncoded(inputData, shift);
+function encoding(data, shift) {
+    let strOutputEn = dataEncoded(data, shift);
         fs.appendFile(outputFile, strOutputEn, err => {
             if (err) {
                 console.log("Can't create output.txt");
             }
-            console.log(strOutputEn);
+            console.log(chalk.blue(strOutputEn));
         })
     }
 
-function decoding(shift) {
-        dataDecoded(inputData, shift);
+function decoding(data, shift) {
+        let strOutputDe = dataDecoded(data, shift);
         fs.appendFile(outputFile, strOutputDe, err => {
             if (err) {
                 console.log("Can't create output.txt");
             }
-            console.log(strOutputDe);
+            console.log(chalk.blue(strOutputDe));
         })
 
     }
