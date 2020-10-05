@@ -15,11 +15,11 @@ a. Type in terminal: node ceasar-cli -w encode -s 2;
     To go out from console and close up the app press Ctr+C;
 
     If  you want to decode this text, type in terminal: node ceasar-cli -w decode -s 2;
-    After that type VGZV text. (This text will be saved in "./input.txt" file).
-    You wil get the TEXT text. (This text will be saved in "./output.txt" file).
+    After that type VGZV text. (This text will be saved in "./src/input.txt" file).
+    You wil get the TEXT text. (This text will be saved in "./src/output.txt" file).
 
-b. Type in terminal: node ceasar-cli-files -w encode -s 2 -i "./input.txt" -o "./output.txt"
+b. Type in terminal: node ceasar-cli-files -w encode -s 2 -i "./src/input.txt" -o "./src/output.txt"
     If the input.txt file have inside TEXT, you wil get the VGZV in output.txt file.
 
-    If  you want to decode this text from output.txt to input.txt, type in terminal: node ceasar-cli-files -w decode -s 2 -i "./output.txt" -o "./input.txt"
+    If  you want to decode this text from output.txt to input.txt, type in terminal: node ceasar-cli-files -w decode -s 2 -i "./src/output.txt" -o "./src/input.txt"
     If the output.txt file have inside VGZV, you wil get the TEXT in input.txt file.
